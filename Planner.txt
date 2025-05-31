@@ -1,0 +1,56 @@
+Recommended file structure:
+ com.pos_system.pos_system
+ │
+ ├── model        ← your Product, Store, Inventory, etc.
+ ├── controller   ← your REST endpoints
+ ├── service      ← handles logic like creating inventory after product is made
+ └── repository   ← interfaces like ProductRepository, StoreRepository
+
+Objects in model consist of {product, store, inventory, transaction, user}
+
+http://localhost:8080/h2-console
+
+https://h2database.com/javadoc/org/h2/api/ErrorCode.html#c90149
+ When database not found error occured 90149, could not fix, I was attempting to create an in memory database that
+ was made dynamically and would reset with the program, instead I created a test.mv.db directory
+ under my user directory which makes the database on disk instead of in memory, solved the issue.
+     --> still need to figure out how to create an in memory H2 database down the road
+
+From the H2 console, to wipe the database run:
+    DROP ALL OBJECTS;
+
+On H2 login screen JDBC url must be:
+ jdbc:h2:file:/Users/luisk/Desktop/pos_system/testdb;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE
+ 	•	File mode vs. memory: jdbc:h2:file:/…/testdb points Hibernate and the console at the same on‐disk
+ 	    database instead of spinning up a fresh in‐memory one.
+ 	•	DB_CLOSE_DELAY=-1: keeps the database open after your app’s connection closes, so the H2 console can
+ 	    still see the schema and data.
+ 	•	AUTO_SERVER=TRUE: launches an embedded H2 TCP server, allowing both your Spring Boot app and the H2
+ 	    console to connect to that same file concurrently.
+
+
+CRUD acronym:
+ Create -> Read -> Update -> Delete
+
+Using POSTMAN
+ URLs
+    http://localhost:8080/api/inventory
+    http://localhost:8080/api/products
+    http://localhost:8080/api/stores
+
+ POSTing a store
+  1. In the create request, click the body tab
+  2. Select raw
+  3. On the right of raw, make sure JSON is selected
+  4. Paste this into the editor
+    {
+      "name": "Downtown Shop",
+      "location": "123 Main St"
+    }
+  5. Hit send
+  6. To view the newly made store
+    1. Go to your H2 database : http://localhost:8080/h2-console and in the SQL editor run : SELECT * FROM STORE;
+    2.
+
+
+Reload / Refresh the maven project : ./mvnw clean compile
