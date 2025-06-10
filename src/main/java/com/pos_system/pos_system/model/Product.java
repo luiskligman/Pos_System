@@ -99,6 +99,12 @@ public class Product {
     public LocalDateTime getDateLastSold() { return dateLastSold; }
 
     // Setters
+    public void setId(Long id) {
+        if (id > 0) {
+            this.id = id;
+        }
+    }
+
     public void setAlu(int alu) {
         if (alu > 0)
             this.alu = alu;
@@ -159,5 +165,8 @@ public class Product {
 
     public void setDateLastSold(LocalDateTime dateLastSold) {
         this.dateLastSold = dateLastSold;
+    }
+
+    public Object getName() {
     }
 }

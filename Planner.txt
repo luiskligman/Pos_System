@@ -54,3 +54,22 @@ Using POSTMAN
 
 
 Reload / Refresh the maven project : ./mvnw clean compile
+
+Error code 403 is an HTTP "Forbidden" status, meaning the server understood your request but refuses to authorize it
+    (you don't have permission).
+
+When linking to Github using Git make sure your Fine Grained Personal Access Token has proper permission to
+read & write or you will get error code 403 when putting in your token password.
+
+Service layer: Java code that implements business rules and talks to repositories.
+Controller Layer: Java code that exposes HTTP endpoints and calls the service.
+Postman (or any HTTP client): Sends HTTP requests to those endpoints.
+
+CONTROLLERS translate HTTP requests into method calls, handle URL paths, status codes, and (de)serialization of JSON.
+They should be as thin as possible: accept a request, call a service, and return a response.
+
+SERVICES encapsulate "business logic" and transcation boundaries.
+
+Why @Transactional on updateProduct:
+    Because we want the read-modify-write sequence to be one atomic database transaction. If any exception is thrown
+    before commit, the entire update rolls back.
