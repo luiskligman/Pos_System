@@ -13,10 +13,11 @@ import java.util.Optional;
  * Controller to handle Inventory operations.
  * Inventory links Products and Stores
  */
-@RestController
-@RequestMapping("/api/inventory")
+@RestController  // Marks this class as a controller that returns JSON
+@RequestMapping("/api/inventory")  // Base path for all inventory-related endpoints
 public class InventoryController {
-    // Repository for Inventory persistence
+
+    // Spring will automatically inject an instance of InventoryRepository here
     @Autowired
     private InventoryRepository inventoryRepository;
 
@@ -26,6 +27,7 @@ public class InventoryController {
      */
     @GetMapping
     public List<Inventory> getAllInventory() {
+        // Calls the repository to return all Inventory objects as a last
         return inventoryRepository.findAll();
     }
 
@@ -35,7 +37,10 @@ public class InventoryController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<Inventory> getInventoryById(@PathVariable Long id) {
+        //Tries to find the Inventory by its ID
         Optional<Inventory> inv = inventoryRepository.findById(id);
+
+        // If found, return 200 OK with the inventory; else return 404 Not Found
         return inv.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -46,6 +51,7 @@ public class InventoryController {
      */
     @PostMapping
     public Inventory createInventory(@RequestBody Inventory inventory) {
+        // Saves and returns the new inventory record
         return inventoryRepository.save(inventory);
     }
 
@@ -56,13 +62,15 @@ public class InventoryController {
     @PutMapping("/{id}")
     public ResponseEntity<Inventory> updateInventory(@PathVariable Long id,
                                                      @RequestBody Inventory updated) {
+        // Check if the inventory with the given ID exists
         return inventoryRepository.findById(id)
                 .map(inv -> {
+                    // If found, update the fields and save
                     inv.setProduct(updated.getProduct());
                     inv.setStore(updated.getStore());
                     return ResponseEntity.ok(inventoryRepository.save(inv));
                 })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());  // 404 if not found
     }
 
     /**
@@ -71,8 +79,10 @@ public class InventoryController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInventory(@PathVariable Long id) {
+        // If the record doesn't exist, return 404
         if (!inventoryRepository.existsById(id))
             return ResponseEntity.notFound().build();
+        // Otherwise, delete it and return 204 No Content
         inventoryRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }

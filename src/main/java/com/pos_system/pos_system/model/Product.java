@@ -30,29 +30,29 @@ public class Product {
     private static final String DEFAULT_DESC2 = "";
     private static final LocalDateTime DEFAULT_DATE_LAST_SOLD = null;
 
-    @Column(unique = true, nullable = false)  // Creates a unique constraint in the Database, field must be non-null
+   // @Column(unique = true, nullable = false)  // Creates a unique constraint in the Database, field must be non-null
     private int alu;  // Associated Lookup Unit
 
-    @Column(nullable = false)  // Field must be non-null
+   // @Column(nullable = false)  // Field must be non-null
     private int upc;  // Universal Product Code
 
-    @Column(nullable = false)  // Field must be non-null
+   // @Column(nullable = false)  // Field must be non-null
     private int vendorCode;  // Arbitrary number user assigns to specific vendors
         // - all products made by specific vendor should share identical vendorCode
 
-    @Column(name = "store_oh_quantity", nullable = false)  // Maps to column "store_oh_quantity" in the Database
+   // @Column(name = "store_oh_quantity", nullable = false)  // Maps to column "store_oh_quantity" in the Database
     private int storeOhQuantity;  // Store on hand quantity
 
-    @Column(nullable = false, precision = 10, scale = 2)  // Up to 10 digits total and 2 decimal places
+   // @Column(nullable = false, precision = 10, scale = 2)  // Up to 10 digits total and 2 decimal places
     private BigDecimal price;  // Price that the company intends to sell the product for
 
-    @Column(nullable = false, precision = 10, scale = 2)  // Up to 10 digits total and 2 decimal places
+   // @Column(nullable = false, precision = 10, scale = 2)  // Up to 10 digits total and 2 decimal places
     private BigDecimal cost;  // Price the company purchases the product for; wholesale price
 
-    @Column(length = 255)  // Limits the string length to 255 characters
+   // @Column(length = 255)  // Limits the string length to 255 characters
     private String desc1;  // Arbitrary description field for user discretion
 
-    @Column(length = 255)  // Limits the string length to 255 characters
+   // @Column(length = 255)  // Limits the string length to 255 characters
     private String desc2;  // Arbitrary description field for user discretion
 
     private LocalDateTime dateLastSold;  // Record the date the item was last sold
@@ -168,5 +168,6 @@ public class Product {
     }
 
     public Object getName() {
+        return null;
     }
 }
