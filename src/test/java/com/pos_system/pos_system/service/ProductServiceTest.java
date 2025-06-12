@@ -21,61 +21,41 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+/**
+ * Unit teats for ProductService.
+ * Uses Mockito to mock out the ProductRepository so we can isolate the service logic.
+ */
+@ExtendWith(MockitoExtension.class)  // Integrates Mockito with JUnit 5
 public class ProductServiceTest {
     @Mock
+    // This creates a Mockito mock of ProductRepository, so no real database is involved.
     private ProductRepository repository;
 
     @InjectMocks
+    // Tells Mockito to inject the mock repository into this ProductService instance.
     private ProductService service;
 
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//    }
-
-//    @Test
-//    void testGetProductById() {
-//        Product product = new Product(1, 1, 1, 1,
-//                                    new BigDecimal("19.99"), new BigDecimal("5.99"),
-//                                    "test1", "test2", LocalDateTime.now());
-//
-//        Product savedProduct = new Product(1, 1, 1, 1,
-//                new BigDecimal("19.99"), new BigDecimal("5.99"),
-//                "test1", "test2", LocalDateTime.now());
-//
-//        product.setId(1L);
-//        savedProduct.setId(2L);  // Simulate database ID
-//
-//        when(repository.findAll()).thenReturn(Arrays.asList(product, savedProduct));
-////        when(repository.save(product)).thenReturn(savedProduct);
-//
-//        Optional<Product> result = service.getProductById(1L);
-//        assertNotNull(result);
-//        assertEquals(1L, result.get().getId());
-//        assertEquals("test1", result.get().getDesc1());
-//
-//
-//    }
-
+    /**
+     * Test that getAllProducts() simply returns whatever the repository.findAll() returns.
+     */
     @Test
     void testGetAllProducts() {
-        // prepare two dummy products
+        // Prepare two dummy Product objects with distinct IDs and descriptions
         Product p1 = new Product(1,1,1,1, new BigDecimal("19.99"),
                 new BigDecimal("5.99"), "desc1", "desc2", LocalDateTime.now());
-        p1.setId(11L);
+        p1.setId(11L);  // Simulate that the database assigned ID = 11
 
         Product p2 = new Product(1,1,1,1, new BigDecimal("19.99"),
                 new BigDecimal("5.99"), "descA", "descB", LocalDateTime.now());
-        p2.setId(22L);
+        p2.setId(22L);  // Simulate database ID = 22
 
-        // stub the repository
+        // Stub the repository so that findAll() returns our two dummy products
         when(repository.findAll()).thenReturn(Arrays.asList(p1, p2));
 
-        // exercise the service
+        // Call the service method under test
         List<Product> results = service.getAllProducts();
 
-        // verify
+        // Verify that the elements of the dummy objects match the values we intended to set them to.
         assertNotNull(results);
         assertEquals(2, results.size());
         assertEquals(11L, results.get(0).getId());
