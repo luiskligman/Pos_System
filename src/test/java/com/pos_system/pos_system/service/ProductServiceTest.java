@@ -35,20 +35,26 @@ public class ProductServiceTest {
     // Tells Mockito to inject the mock repository into this ProductService instance.
     private ProductService service;
 
+    private Product p1;
+    private Product p2;
+
+    @BeforeEach
+    void setUpProducts() {
+        // Prepare two dummy Product objects with distinct IDs and descriptions
+        p1 = new Product(1,1,1,1, new BigDecimal("19.99"),
+                new BigDecimal("5.99"), "desc1", "desc2", LocalDateTime.now());
+        p1.setId(11L);  // Simulate that the database assigned ID = 11
+
+        p2 = new Product(1,1,1,1, new BigDecimal("19.99"),
+                new BigDecimal("5.99"), "descA", "descB", LocalDateTime.now());
+        p2.setId(22L);  // Simulate database ID = 22
+    }
+
     /**
      * Test that getAllProducts() simply returns whatever the repository.findAll() returns.
      */
     @Test
     void testGetAllProducts() {
-        // Prepare two dummy Product objects with distinct IDs and descriptions
-        Product p1 = new Product(1,1,1,1, new BigDecimal("19.99"),
-                new BigDecimal("5.99"), "desc1", "desc2", LocalDateTime.now());
-        p1.setId(11L);  // Simulate that the database assigned ID = 11
-
-        Product p2 = new Product(1,1,1,1, new BigDecimal("19.99"),
-                new BigDecimal("5.99"), "descA", "descB", LocalDateTime.now());
-        p2.setId(22L);  // Simulate database ID = 22
-
         // Stub the repository so that findAll() returns our two dummy products
         when(repository.findAll()).thenReturn(Arrays.asList(p1, p2));
 
@@ -61,4 +67,9 @@ public class ProductServiceTest {
         assertEquals(11L, results.get(0).getId());
         assertEquals("descB", results.get(1).getDesc2());
     }
+
+//    @Test
+//    void testGetProductById() {
+//
+//    }
 }

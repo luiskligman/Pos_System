@@ -76,3 +76,7 @@ Why @Transactional on updateProduct:
 
 Spring creates the StoreRepository implementation, stores it as a bean, and injects it into StoreService when it
 sees the @Autowired constructor
+
+In JUnit each test should be completely independent, so you can either
+ 1. Recreate your dummy Product instances inside each test
+ 2. Factor the common setup into a @BeforeEach so you don't have to repeat yourself
