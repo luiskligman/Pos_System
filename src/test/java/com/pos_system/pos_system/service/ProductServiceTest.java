@@ -17,8 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -51,6 +51,49 @@ public class ProductServiceTest {
     }
 
     /**
+     * Create and save a product
+     */
+    @Test
+    void testCreateProduct() {
+        // Stub repository.save(...) to return p1 with ID already set
+        when(repository.save(p1)).thenReturn(p1);
+
+        // Call the service create method
+        Product created = service.saveProduct(p1);
+
+        // Verify the returned object matches and that save() was invoked
+        assertNotNull(created, "Created product should not be null");
+        assertEquals(11L, created.getId(), "ID should be assigned by repository");
+        assertEquals("desc1", created.getDesc1(), "Desc1 should be preserved");
+        verify(repository).save(p1);
+    }
+
+//    /**
+//     * Test the ability to update pre-exisiting products
+//     */
+//    @Test
+//    void testUpdateProduct() {
+//        // repository.findById returns existing p1
+//        when(repository.findById(11L)).thenReturn(Optional.of(p1));
+//
+//        // Create a DTO pr Product carrying just the new values you want to merge
+//        Product updateData = new Product();
+//        updateData.setDesc1("newDesc1");
+//        updateData.setDesc2("newDesc2");
+//
+//        // Stub save(p1) to return p1 ( same instance)
+//        when(repository.save(p1)).thenReturn(p1);
+//
+//        // Call update
+//        Optional<Product> result = Optional.ofNullable(service.updateProduct(11L, updateData));
+//
+//        assertTrue(result.isPresent());
+//
+//
+//    }
+
+
+    /**
      * Test that getAllProducts() simply returns whatever the repository.findAll() returns.
      */
     @Test
@@ -68,8 +111,20 @@ public class ProductServiceTest {
         assertEquals("descB", results.get(1).getDesc2());
     }
 
-//    @Test
-//    void testGetProductById() {
-//
-//    }
+    /**
+     * Test that getProductById() simply returns whatever the repository.findById() returns.
+     */
+    @Test
+    void testGetProductById() {
+        // Stub the repository to return p1 when ID = 11
+        when(repository.findById(11L)).thenReturn(Optional.of(p1));
+
+        // Call the service
+        Optional<Product> result = service.getProductById(11L);
+
+        // The Optional is present and contains the expected product
+        assertNotNull(result);
+        assertEquals(11L, result.get().getId());
+        assertEquals("desc2", result.get().getDesc2());
+    }
 }
