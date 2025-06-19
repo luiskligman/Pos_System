@@ -1,7 +1,7 @@
 package com.pos_system.pos_system.controller;
 
 import com.pos_system.pos_system.model.Inventory;
-import com.pos_system.pos_system.repository.InventoryRepository;
+import com.pos_system.pos_system.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +19,16 @@ public class InventoryController {
 
     // Spring will automatically inject an instance of InventoryRepository here
     @Autowired
-    private InventoryRepository inventoryRepository;
+    private InventoryService inventoryService;
 
     /**
      * GET /api/inventory
      * Fetches all inventory records.
      */
     @GetMapping
-    public List<Inventory> getAllInventory() {
+    public List<Inventory> getAllInventory(Long storeId) {
         // Calls the repository to return all Inventory objects as a last
-        return inventoryRepository.findAll();
+        return inventoryService.getInventoryByStoreId(storeId);
     }
 
     /**
@@ -52,7 +52,7 @@ public class InventoryController {
     @PostMapping
     public Inventory createInventory(@RequestBody Inventory inventory) {
         // Saves and returns the new inventory record
-        return inventoryRepository.save(inventory);
+        return inventoryService.createInventory();
     }
 
     /**

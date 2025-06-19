@@ -39,6 +39,13 @@ public class StoreService {
     }
 
     /**
+     * Check if a store exists
+     */
+    public boolean existsById(Long id) {
+        return storeRepository.existsById(id);
+    }
+
+    /**
      * Create a new store.
      */
     public Store createStore(Store store) {

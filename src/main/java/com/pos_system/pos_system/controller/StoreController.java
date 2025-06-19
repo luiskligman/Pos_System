@@ -1,7 +1,7 @@
 package com.pos_system.pos_system.controller;
 
 import com.pos_system.pos_system.model.Store;
-import com.pos_system.pos_system.repository.StoreRepository;
+import com.pos_system.pos_system.service.StoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +19,7 @@ public class StoreController {
 
     // Spring will automatically inject the implementation of StoreRepository here
     @Autowired
-    private StoreRepository storeRepository;
+    private StoreService storeService;
 
     /**
      * GET /api/stores
@@ -28,7 +28,7 @@ public class StoreController {
     @GetMapping
     public List<Store> getAllStores() {
         // Returns all store records as a list
-        return storeRepository.findAll();
+        return storeService.getAllStores();
     }
 
     /**
@@ -39,7 +39,7 @@ public class StoreController {
     @GetMapping("/{id}")
     public ResponseEntity<Store> getStoreById(@PathVariable Long id) {
 
-        Optional<Store> str = storeRepository.findById(id);  // Attempt to find store
+        Optional<Store> str = storeService.getStoreById(id);  // Attempt to find store
 
         return str.map(ResponseEntity::ok) // If found, return 200 OK with the store
                 .orElseGet(() -> ResponseEntity.notFound().build());  // Else 404 Not Found
@@ -52,24 +52,24 @@ public class StoreController {
     @PostMapping
     public Store createStore(@RequestBody Store store) {
         // Saves and returns the new store
-        return storeRepository.save(store);
+        return storeService.createStore(store);
     }
 
     /**
      * Put /api/stores/{id}
      * Update an existing store's details.
-     * If the sotre exists, it's updated and returned.
+     * If the store exists, it's updated and returned.
      * If not, returns 404 Not Found.
      */
     @PutMapping("/{id}")
     public ResponseEntity<Store> updateStore(@PathVariable Long id,
                                              @RequestBody Store updated) {
-        return storeRepository.findById(id)
+        return storeService.getStoreById(id)
                 .map(st -> {
                     // Update the store fields with new values
                     st.setName(updated.getName());
                     st.setLocation(updated.getLocation());
-                    return ResponseEntity.ok(storeRepository.save(st));  // Save and return updated store
+                    return ResponseEntity.ok(storeService.updateStore(id, st));  // Save and return updated store
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());  // 404 if store not found
     }
@@ -82,10 +82,10 @@ public class StoreController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStore(@PathVariable Long id) {
-        if (!storeRepository.existsById(id)) {
+        if (!storeService.existsById(id)) {
             return ResponseEntity.notFound().build();  // 404 if not found
         }
-        storeRepository.deleteById(id);  // Delete the store
+        storeService.deleteStore(id);  // Delete the store
         return ResponseEntity.noContent().build();  // 204 No Content ( successful )
     }
 
