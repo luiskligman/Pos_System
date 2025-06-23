@@ -51,6 +51,7 @@ public class ProductService {
     public Product saveProduct(Product product) {
         return productRepository.save(product);
     }
+
     /**
      * Update an existing product.
      * First, verify that a product with this ID actually exists.

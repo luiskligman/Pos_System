@@ -12,4 +12,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     // Find all Inventory rows for one store ( to list everything on-hand in that store )
     List<Inventory> findByStoreId(Long storeId);
+
+    // Check if this store have an inventory row for this specific product
+    boolean existsByStoreIdAndProductId(Long storeId, Long productId);
 }
