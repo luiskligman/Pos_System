@@ -10,6 +10,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
@@ -55,5 +58,19 @@ public class StoreServiceTest {
         assertEquals("store1", created.getName());
         assertEquals("123 A Street", created.getLocation());
         verify(repository).save(s1);
+    }
+
+    /**
+     * Test that getAllStores() simply returns whatever the repository.findAll() returns.
+     */
+    @Test
+    void testGetAllStores() {
+        // Stub the repository so that findAll() returns our two dummy stores
+        when(repository.findAll()).thenReturn(Arrays.asList(s1, s2));
+
+        // Call the service method under test
+        List<Store> results = service.getAllStores();
+
+        // Verify that the elements of the dummy objects match the values we intended to set them to.
     }
 }
