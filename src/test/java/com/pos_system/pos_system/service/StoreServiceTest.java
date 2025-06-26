@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -72,5 +73,34 @@ public class StoreServiceTest {
         List<Store> results = service.getAllStores();
 
         // Verify that the elements of the dummy objects match the values we intended to set them to.
+        assertNotNull(results, "Results should not be null");
+        assertEquals(2, results.size(), "Results size should be 2");
+        assertEquals(12L, results.get(0).getId(), "Id should be assigned by repository");
+        assertEquals("store2", results.get(1).getName(), "Name should be preserved");
+    }
+
+    @Test
+    void testUppdateStore() {
+        // repository.findById returns existing s1
+        when(repository.findById(12L)).thenReturn(Optional.of(s1));
+
+        // Create a DTO Store carrying just the new values you want to merge
+        Store updateStore = new Store();
+        updateStore.setName("1store");
+        updateStore.setLocation("1st street");
+
+        // Stub save(s1) to return s1 ( same instance )
+        when(repository.save(s1)).thenReturn(s1);
+
+        // Act
+        Store result = service.updateStore(12L, updateStore);
+
+//        // Call update
+//        Optional<Store> result = Optional.ofNullable(service.updateStore(12L, updateStore));
+
+        assertNotNull(result, "Result should not be null");
+        assertEquals(12L, result.getId(), "ID should be assigned by repository");
+        assertEquals("1st street", result.getLocation(), "Name should be preserved");
+//        verify(repository).save(s1);
     }
 }

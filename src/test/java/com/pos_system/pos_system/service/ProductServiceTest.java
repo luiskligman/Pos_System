@@ -88,9 +88,32 @@ public class ProductServiceTest {
 //        Optional<Product> result = Optional.ofNullable(service.updateProduct(11L, updateData));
 //
 //        assertTrue(result.isPresent());
-//
-//
 //    }
+
+    @Test
+    void testUpdateProduct() {
+        // repository.findById returns existing p1
+        when(repository.findById(11L)).thenReturn(Optional.of(p1));
+
+        // Create a DTO Product carrying just the new values you want to merge
+        Product updateProduct = new Product();
+        updateProduct.setVendorCode(15);
+        updateProduct.setDesc1("SuccessfulTestDesc1");
+
+        // Stub save(p1) to return p1 ( same instance )
+        when(repository.save(p1)).thenReturn(p1);
+
+        // Act
+        Product result = service.updateProduct(11L, updateProduct);
+
+        assertNotNull(result, "Updated product should not be null");
+        assertEquals(11L, result.getId(), "ID should be assigned by repository");
+        assertEquals("SuccessfulTestDesc1", result.getDesc1(), "Desc1 should be preserved");
+        assertEquals(15, result.getVendorCode(), "ID should be assigned by repository");
+
+        assertEquals(1, result.getAlu(), "Desc2 should be preserved");
+
+    }
 
 
     /**

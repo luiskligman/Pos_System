@@ -73,8 +73,8 @@ public class ProductService {
         existing.setDesc2(updatedProduct.getDesc2());
         existing.setDateLastSold(updatedProduct.getDateLastSold());
 
-        // Because this method is @Transactional, simply returning the managed entity is enough
-        return existing;
+        // Persist changes and return the managed entity
+        return productRepository.save(existing);
     }
 
     /**

@@ -63,7 +63,8 @@ public class StoreService {
         existing.setName(updatedStore.getName());
         existing.setLocation(updatedStore.getLocation());
 
-        return existing;
+        // Persist changes and return the managed entity
+        return storeRepository.save(existing);
     }
 
     /**
