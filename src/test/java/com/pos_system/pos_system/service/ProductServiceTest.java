@@ -1,5 +1,6 @@
 package com.pos_system.pos_system.service;
 
+import com.pos_system.pos_system.dto.ProductUpdateDto;
 import com.pos_system.pos_system.model.Product;
 import com.pos_system.pos_system.repository.ProductRepository;
 import com.pos_system.pos_system.service.ProductService;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.any;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,6 +70,38 @@ public class ProductServiceTest {
         verify(repository).save(p1);
     }
 
+    @Test
+    void testUpdateProductWithDto() {
+        // Arrange : repository returns our existing p1
+        when(repository.findById(11L)).thenReturn(Optional.of(p1));
+
+        // Stub save(p1) to return that same instance
+        when(repository.save(p1)).thenReturn(p1);
+
+        // Build a DTO that only changes desc1 and vendorCode
+        ProductUpdateDto dto = new ProductUpdateDto();
+        dto.setDesc1("newDesc1");
+        dto.setVendorCode(15);
+        // Leave everything else null so it stays untouched
+
+        // Act
+        Product result = service.updateProduct(11L, dto);
+
+        // Assert - only those two fields changed
+        assertNotNull(result, "Updated product should not be null");
+        assertEquals(11L, result.getId(), "ID should be assigned by repository");
+        assertEquals("newDesc1", result.getDesc1(), "Desc1 should be set as new value");
+        assertEquals(15, result.getVendorCode(), "VendorCode should be set as new value");
+
+        // Check that other fields remained unchanged
+        assertEquals("desc2", result.getDesc2(), "Desc2 should be preserved");
+        assertEquals(1, result.getAlu(), "Alu should be preserved");
+
+        // Verify we actually called save(p1)
+        verify(repository).save(p1);
+    }
+
+
 //    /**
 //     * Test the ability to update pre-exisiting products
 //     */
@@ -90,30 +124,34 @@ public class ProductServiceTest {
 //        assertTrue(result.isPresent());
 //    }
 
-    @Test
-    void testUpdateProduct() {
-        // repository.findById returns existing p1
-        when(repository.findById(11L)).thenReturn(Optional.of(p1));
 
-        // Create a DTO Product carrying just the new values you want to merge
-        Product updateProduct = new Product();
-        updateProduct.setVendorCode(15);
-        updateProduct.setDesc1("SuccessfulTestDesc1");
-
-        // Stub save(p1) to return p1 ( same instance )
-        when(repository.save(p1)).thenReturn(p1);
-
-        // Act
-        Product result = service.updateProduct(11L, updateProduct);
-
-        assertNotNull(result, "Updated product should not be null");
-        assertEquals(11L, result.getId(), "ID should be assigned by repository");
-        assertEquals("SuccessfulTestDesc1", result.getDesc1(), "Desc1 should be preserved");
-        assertEquals(15, result.getVendorCode(), "ID should be assigned by repository");
-
-        assertEquals(1, result.getAlu(), "Desc2 should be preserved");
-
-    }
+    /**
+     * This method previously worked as intended before I started using DTOs
+     */
+//    @Test
+//    void testUpdateProduct() {
+//        // repository.findById returns existing p1
+//        when(repository.findById(11L)).thenReturn(Optional.of(p1));
+//
+//        // Create a DTO Product carrying just the new values you want to merge
+//        Product updateProduct = new Product();
+//        updateProduct.setVendorCode(15);
+//        updateProduct.setDesc1("SuccessfulTestDesc1");
+//
+//        // Stub save(p1) to return p1 ( same instance )
+//        when(repository.save(p1)).thenReturn(p1);
+//
+//        // Act
+//        Product result = service.updateProduct(11L, updateProduct);
+//
+//        assertNotNull(result, "Updated product should not be null");
+//        assertEquals(11L, result.getId(), "ID should be assigned by repository");
+//        assertEquals("SuccessfulTestDesc1", result.getDesc1(), "Desc1 should be preserved");
+//        assertEquals(15, result.getVendorCode(), "ID should be assigned by repository");
+//
+//        assertEquals(1, result.getAlu(), "Desc2 should be preserved");
+//
+//    }
 
 
     /**

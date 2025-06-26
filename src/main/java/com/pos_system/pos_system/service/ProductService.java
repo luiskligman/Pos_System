@@ -9,6 +9,7 @@ package com.pos_system.pos_system.service;
 
 import com.pos_system.pos_system.model.Product;
 import com.pos_system.pos_system.repository.ProductRepository;
+import com.pos_system.pos_system.dto.ProductUpdateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,19 +60,28 @@ public class ProductService {
      * Throw an exception ( IllegalArgumentException ) if not found.
      */
     @Transactional
-    public Product updateProduct(long id, Product updatedProduct) {
+    public Product updateProduct(long id, ProductUpdateDto dto) {
         Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + id));
-        // Fields that will be updated
-        existing.setAlu(updatedProduct.getAlu());
-        existing.setUpc(updatedProduct.getUpc());
-        existing.setVendorCode(updatedProduct.getVendorCode());
-        existing.setStoreOhQuantity(updatedProduct.getStoreOhQuantity());
-        existing.setPrice(updatedProduct.getPrice());
-        existing.setCost(updatedProduct.getCost());
-        existing.setDesc1(updatedProduct.getDesc1());
-        existing.setDesc2(updatedProduct.getDesc2());
-        existing.setDateLastSold(updatedProduct.getDateLastSold());
+
+        if (dto.getAlu() != null)
+            existing.setAlu(dto.getAlu());
+        if (dto.getUpc() != null)
+            existing.setUpc(dto.getUpc());
+        if (dto.getVendorCode() != null)
+            existing.setVendorCode(dto.getVendorCode());
+        if (dto.getStoreOhQuantity() != null)
+            existing.setStoreOhQuantity(dto.getStoreOhQuantity());
+        if (dto.getPrice() != null)
+            existing.setPrice(dto.getPrice());
+        if (dto.getCost() != null)
+            existing.setCost(dto.getCost());
+        if (dto.getDesc1() != null)
+            existing.setDesc1(dto.getDesc1());
+        if (dto.getDesc2() != null)
+            existing.setDesc2(dto.getDesc2());
+        if (dto.getDateLastSold() != null)
+            existing.setDateLastSold(dto.getDateLastSold());
 
         // Persist changes and return the managed entity
         return productRepository.save(existing);

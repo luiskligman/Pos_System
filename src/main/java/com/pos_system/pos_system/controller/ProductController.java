@@ -2,6 +2,7 @@ package com.pos_system.pos_system.controller;
 
 // Standard imports for REST controllers
 import com.pos_system.pos_system.model.Product;
+import com.pos_system.pos_system.dto.ProductUpdateDto;
 import com.pos_system.pos_system.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -58,25 +59,24 @@ public class ProductController {
     }
 
     /**
-     * PUT /api/products/{id}
-     * Updates an exisiting product record.
-     *
-     * @param id      the ID of the product to update
-     * @param updated the product data to apply
-     * @return 200 OK with updated data, or 404 if not found
+     * PATCH /api/products/{id}
+     * Partially update only the fiels present in the DTO>
+     * @param id
+     * @param dto
+     * @return
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product updated) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody ProductUpdateDto dto) {
         // Find existing product by ID
         try {
-            Product result = productService.updateProduct(id, updated);
+            Product result = productService.updateProduct(id, dto);
             return ResponseEntity.ok(result);
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
 
         }
-
+    }
 //        return productService.getProductById(id)
 //                .map(prod -> {
 //                    // Copy over fields from the incoming object
@@ -94,7 +94,7 @@ public class ProductController {
 //                })
 //                // If not found, return 404
 //                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+
 
     /**
      * DELETE /api/products/{id}

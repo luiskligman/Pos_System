@@ -104,7 +104,7 @@ public class ProductUpdateDto {
     public void setDesc2(String desc2) {
         this.desc2 = desc2;
     }
-    
+
     public LocalDateTime getDateLastSold() {
         return dateLastSold;
     }
