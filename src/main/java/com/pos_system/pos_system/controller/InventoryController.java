@@ -3,6 +3,7 @@ package com.pos_system.pos_system.controller;
 import com.pos_system.pos_system.model.Inventory;
 import com.pos_system.pos_system.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +18,15 @@ import java.util.Optional;
 @RequestMapping("/api/inventory")  // Base path for all inventory-related endpoints
 public class InventoryController {
 
-    // Spring will automatically inject an instance of InventoryRepository here
-    @Autowired
-    private InventoryService inventoryService;
+    private final InventoryService inventoryService;
+
+    public InventoryController(InventoryService inventoryService) {
+        this.inventoryService = inventoryService;
+    }
 
     /**
      * GET /api/inventory
-     * Fetches all inventory records.
+     * Fetches all inventory entries for a given store.
      */
     @GetMapping
     public List<Inventory> getAllInventory(Long storeId) {
@@ -92,15 +95,10 @@ public class InventoryController {
      * DELETE /api/inventory/{id}
      * Delete an inventory record by ID.
      */
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<Void> deleteInventory(@PathVariable Long id) {
-//        inventoryService.deleteInventory(id);
-//
-//        // If the record doesn't exist, return 404
-//        if (!inventoryRepository.existsById(id))
-//            return ResponseEntity.notFound().build();
-//        // Otherwise, delete it and return 204 No Content
-//        inventoryService.deleteInventory(id);
-//        return ResponseEntity.noContent().build();
-//    }
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteInventory(@PathVariable Long id) {
+        inventoryService.deleteInventory(id);
+    }
+
 }
