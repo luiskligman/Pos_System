@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
  * Data Transfer Object for partial updates to Product entities.
  * Fields left as null will not overwrite existing values.
  */
-public class ProductUpdateDto {
+public class ProductDto {
     private Integer alu;
     private Integer upc;
     private Integer vendorCode;
@@ -21,13 +21,13 @@ public class ProductUpdateDto {
     /**
      * Default constructor needed for serialization/deserialization
      */
-    public ProductUpdateDto() {
+    public ProductDto() {
     }
 
     /**
      * All-args constructor for manual instantiation or testing.
      */
-    public ProductUpdateDto(
+    public ProductDto(
             Integer alu,
             Integer upc,
             Integer vendorCode,

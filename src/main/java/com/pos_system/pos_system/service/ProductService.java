@@ -9,7 +9,7 @@ package com.pos_system.pos_system.service;
 
 import com.pos_system.pos_system.model.Product;
 import com.pos_system.pos_system.repository.ProductRepository;
-import com.pos_system.pos_system.dto.ProductUpdateDto;
+import com.pos_system.pos_system.dto.ProductDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +60,7 @@ public class ProductService {
      * Throw an exception ( IllegalArgumentException ) if not found.
      */
     @Transactional
-    public Product updateProduct(long id, ProductUpdateDto dto) {
+    public Product updateProduct(long id, ProductDto dto) {
         Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + id));
 

@@ -2,7 +2,7 @@ package com.pos_system.pos_system.controller;
 
 // Standard imports for REST controllers
 import com.pos_system.pos_system.model.Product;
-import com.pos_system.pos_system.dto.ProductUpdateDto;
+import com.pos_system.pos_system.dto.ProductDto;
 import com.pos_system.pos_system.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +66,7 @@ public class ProductController {
      * @return
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody ProductUpdateDto dto) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody ProductDto dto) {
         // Find existing product by ID
         try {
             Product result = productService.updateProduct(id, dto);

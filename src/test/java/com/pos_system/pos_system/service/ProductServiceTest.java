@@ -1,15 +1,13 @@
 package com.pos_system.pos_system.service;
 
-import com.pos_system.pos_system.dto.ProductUpdateDto;
+import com.pos_system.pos_system.dto.ProductDto;
 import com.pos_system.pos_system.model.Product;
 import com.pos_system.pos_system.repository.ProductRepository;
-import com.pos_system.pos_system.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -18,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.any;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,7 +76,7 @@ public class ProductServiceTest {
         when(repository.save(p1)).thenReturn(p1);
 
         // Build a DTO that only changes desc1 and vendorCode
-        ProductUpdateDto dto = new ProductUpdateDto();
+        ProductDto dto = new ProductDto();
         dto.setDesc1("newDesc1");
         dto.setVendorCode(15);
         // Leave everything else null so it stays untouched
