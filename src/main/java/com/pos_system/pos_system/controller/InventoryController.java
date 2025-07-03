@@ -1,99 +1,154 @@
 package com.pos_system.pos_system.controller;
 
-import com.pos_system.pos_system.model.Inventory;
+// DTOs define the shape of data sent to/from the client
+import com.pos_system.pos_system.dto.CreateInventoryRequest;
+import com.pos_system.pos_system.dto.AdjustInventoryRequest;
+import com.pos_system.pos_system.dto.InventoryDto;
+
+// Custom exception type for 404 Not Found
+import com.pos_system.pos_system.exception.NotFoundException;
+
+// Mapper handles conversion between domain entities and DTOs
+import com.pos_system.pos_system.mapper.InventoryMapper;
+
+// Spring Web annotations for REST controllers
+import org.springframework.web.server.ResponseStatusException;
 import com.pos_system.pos_system.service.InventoryService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+// Utility for converting lists
+import java.util.stream.Collectors;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Controller to handle Inventory operations.
- * Inventory links Products and Stores
+ * REST controller for managing Inventory entries.
+ * Inventory links a Product and a Store, tracking the quantity available at each location.
+ * This controller exposes CRUD operations:
+ * - List inventory by store
+ * - Retrieve a single inventory entry
+ * - Create new inventory
+ * - Adjust quantity on hand
+ * - Delete inventory entries
  */
-@RestController  // Marks this class as a controller that returns JSON
-@RequestMapping("/api/inventory")  // Base path for all inventory-related endpoints
+@RestController  // Marks this class as a REST endpoint handler
+@RequestMapping("/api/inventory")  // Base URL path for all endpoints in this controller
 public class InventoryController {
 
+    // Final field holds a reference to the service; ensures thread-safety
     private final InventoryService inventoryService;
 
+    /**
+     * Constructor-based dependency injection.
+     * Spring will automatically wire an InventoryService instance here.
+     * Using constructor injection makes the field easier to test and immutable.
+     *
+     * @param inventoryService the service that contains business logic for inventories
+     */
     public InventoryController(InventoryService inventoryService) {
-        this.inventoryService = inventoryService;
+        this.inventoryService = inventoryService;  // assign injected service to the field
     }
 
     /**
-     * GET /api/inventory
-     * Fetches all inventory entries for a given store.
+     * GET /api/inventory?storeId={storeId}
+     * Retrieves all inventory entries for a given store ID.
+     * The client supplies storeId as a query parameter.
+     *
+     * @param storeId the ID of the store whose inventory we want to list
+     * @return a List of InventoryDto objects ( one per inventory row )
      */
-    @GetMapping
-    public List<Inventory> getAllInventory(Long storeId) {
-        // Calls the repository to return all Inventory objects as a last
-        return inventoryService.getInventoryByStoreId(storeId);
+    @GetMapping  // HTTP GET at /api/inventory
+    public List<InventoryDto> getAllInventory(@RequestParam Long storeId) {
+        // 1. Call service to fetch List<Inventory> from the database
+        // 2. Convert each Inventory entity into an InventoryDto via InventoryMapper
+        // 3. Collect results into a List and return to client ( auto-serialized to JSON )
+
+        return inventoryService.getInventoryByStoreId(storeId)
+                .stream()  // convert List to Stream for transformation
+                .map(InventoryMapper::toDto)  // map each Inventory -> InventoryDto
+                .collect(Collectors.toList());  // gather back into a List
     }
 
     /**
      * GET /api/inventory/{id}
-     * Retrieve a single inventory entry by ID
+     * Retrieves a single inventory entry by its unique ID.
+     *
+     * @param id the inventory record ID ( path variable )
+     * @return the InventoryDto representing the record
+     * @throws NotFoundException if no inventory with the given ID exists
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Inventory> getInventoryById(@PathVariable Long id) {
-        //Tries to find the Inventory by its ID
-        Optional<Inventory> inv = inventoryService.findInventoryById(id);
+    public InventoryDto getInventoryById(@PathVariable Long id) {
 
-        // If found, return 200 OK with the inventory; else return 404 Not Found
-        return inv.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        // Service returns Optional<Inventory>; if present, map to DTO
+        // If not, throw NotFoundException ( handled globally by @ControllerAdvice )
+        return inventoryService.findInventoryById(id)
+                .map(InventoryMapper::toDto)  // convert entity to DTO
+                .orElseThrow(() ->  // if empty, throw exception
+                        new NotFoundException("Inventory not found with id: " + id));
     }
 
     /**
      * POST /api/inventory
-     * Create a new inventory record (associating a product with a store).
+     * Create a new inventory record linking a store and product.
+     * Client must send a JSON ody matching CreateInventoryRequest:
+     * {
+     *     "storeId": 1,
+     *     "productId": 42,
+     *     "initialQuantity": 100
+     * }
+     * @param request the payload containing storeId, productId, and initialQuantity
+     * @return the newly created InventoryDto ( with generated ID and stored quantity )
      */
-    @PostMapping
-    public Inventory createInventory(@PathVariable Long storeId, @RequestBody Inventory inventory) {
-        // Saves and returns the new inventory record
-        return inventoryService.createInventory(storeId, inventory.getId(), inventory.getQuantityOnHand());
+    @PostMapping  // HTTP POST at /api/inventory
+    public InventoryDto createInventory(@RequestBody CreateInventoryRequest request) {
+        // Directly map service-created entity to DTO without intermediate variable
+        return InventoryMapper.toDto(
+                inventoryService.createInventory(
+                        request.getStoreId(),  // store ID from client
+                        request.getProductId(),  // product ID from client
+                        request.getInitialQuantity()  // initial quantity from client
+                )
+        );
     }
 
     /**
-     * PUT /api/inventory/store/{storeId}/product/{productId}?delta=X
-     * Adjust the quantity on hand by +/- delta for the given store/product
+     * PUT /api/inventory
+     * Adjusts the quantity on hand by a delta for a store-product entry.
+     * Client must send JSON matching AdjustInventoryRequest:
+     * {
+     *     "storeId": 1,
+     *     "productId": 42,
+     *     "delta": -5
+     * }
+     *
+     * @param request payload with storeId, productId, and delta adjustment
+     * @return updated InventoryDto after applying adjustment
+     * @throws ResponseStatusException(HttpStatus.BAD_REQUEST) on invalid adjustment
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Inventory> adjustInventory(@PathVariable Long id, @RequestBody Inventory updated) {
+    public InventoryDto adjustInventory(@RequestBody AdjustInventoryRequest request) {
         try {
-            // Call service with storeId, ProductId and the delta
-            Inventory saved  = inventoryService.adjustInventory(
-                    updated.getStore().getId(),
-                    updated.getProduct().getId(),
-                    updated.getQuantityOnHand()
+            return InventoryMapper.toDto(
+                    inventoryService.adjustInventory(
+                            request.getStoreId(),
+                            request.getProductId(),
+                            request.getDelta()
+                    )
             );
-            return ResponseEntity.ok(saved);
-        } catch (IllegalArgumentException ex) {
-            // throw if no such inventory row or delta would go negative
-            return ResponseEntity.badRequest().build();
+        } catch (IllegalArgumentException exception) {
+            // Wrap any invalid-argument exception as a 400 Bad Request
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, exception.getMessage(), exception);
         }
     }
 
-//    public ResponseEntity<Inventory> adjustInventory(@PathVariable Long id,
-//                                                     @RequestBody Inventory updated) {
-//        // Check if the inventory with the given ID exists
-//        return inventoryService.existsById(id)
-//                .map(inv -> {
-//                    // If found, update the fields and save
-//                    inv.setProduct(updated.getProduct());
-//                    inv.setStore(updated.getStore());
-//                    return ResponseEntity.ok(inventoryRepository.save(inv));
-//                })
-//                .orElseGet(() -> ResponseEntity.notFound().build());  // 404 if not found
-//    }
-
     /**
      * DELETE /api/inventory/{id}
-     * Delete an inventory record by ID.
+     * Deletes an inventory record by its ID.
+     * Responds with HTTP 204 No Content on success.
+     *
+     * @param id ID of the inventory record to delete
+     * @throws NotFoundException when no record exists for the given ID
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
